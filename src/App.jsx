@@ -4,7 +4,7 @@ import { createGlobalStyle } from 'styled-components';
 import Home from '@pages/Home';
 import Profile from '@pages/Profile';
 
-const GlobalStyle = createGlobalStyle`                                                                :root {
+const GlobalStyle = createGlobalStyle`                                                              :root {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -42,6 +42,7 @@ const GlobalStyle = createGlobalStyle`                                          
   font-style: normal;
   src: url('/files/fonts/Stylish/Stylish-Regular.ttf') format('truetype');
 }
+
 h1 {
   margin: 0;
   font-size: clamp(26px, 2.2222222222vw, 32px);
@@ -160,8 +161,7 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
-                                                                       
- `;
+`;
 
 function App() {
   return (
