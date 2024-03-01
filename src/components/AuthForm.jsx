@@ -13,31 +13,31 @@ const AuthForm = ({
 }) => {
   return (
     <Form>
-      {fields.map((field, index) => (
+      {fields?.map((field, index) => (
         <FormGroup key={index}>
           <FormLabel>{field.label}</FormLabel>
           <Input type={field.type} placeholder={field.placeholder} />
         </FormGroup>
       ))}
       {type === 'signup' && (
-        <Terms>
+        <RememberMeSection>
           <Checkbox type="checkbox" />
-          <TermsText>{agreeToTermsText}</TermsText>
-        </Terms>
+          <FormLabel>{agreeToTermsText}</FormLabel>
+        </RememberMeSection>
       )}
       <ActionButton>{actionText}</ActionButton>
       <Divider>Or</Divider>
-      <AuthMethods>
-        {alternateAuthMethods.map((method, index) => (
+      <SocialLoginSection>
+        {alternateAuthMethods?.map((method, index) => (
           <AuthMethod key={index}>
             <AuthLogo src={method.logoUrl} alt={method.altText} />
             <AuthText>{method.method}</AuthText>
           </AuthMethod>
         ))}
-      </AuthMethods>
-      <BottomText>
+      </SocialLoginSection>
+      <SocialButtonText>
         {bottomText} <span>{bottomActionText}</span>
-      </BottomText>
+      </SocialButtonText>
     </Form>
   );
 };
@@ -76,9 +76,37 @@ const ActionButton = styled.button`
   cursor: pointer;
 `;
 
+const RememberMeSection = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 28px;
+`;
+
+const Checkbox = styled.input`
+  margin-right: 8px;
+`;
+
 const Divider = styled.div`
   margin-top: 38px;
   text-align: center;
 `;
+
+const SocialLoginSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 40px;
+`;
+
+const SocialButtonText = styled.p`
+  margin: 0;
+  font-family: Poppins, sans-serif;
+`;
+
+const AuthMethod = styled.div``
+
+const AuthLogo = styled.img``
+
+const AuthText = styled.p``
 
 export default AuthForm;
