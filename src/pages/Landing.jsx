@@ -2,11 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import AuthForm from '@components/AuthForm';
 
-
 const Landing = () => {
-  // 基于后端数据或应用状态决定表单类型、字段等
   const formProps = {
-    type: 'login', // 或 'signup'
+    type: 'login', // or 'signup'
     title: 'Welcome Back!',
     fields: [
       { label: 'Email', placeholder: 'Enter your email', type: 'email' },
@@ -15,18 +13,69 @@ const Landing = () => {
         placeholder: 'Enter your password',
         type: 'password',
       },
-      // 加上别的字段如'确认密码'等，如果是注册表单
     ],
-    // 其他需要的props...
+    // other props
   };
 
   return (
-    <div>
-      <AuthForm {...formProps} />
-      {/* 可以在这里添加Landing页面的其他内容，如背景图等 */}
-    </div>
+    <MainContainer>
+      <LoginContainer>
+        <LoginColumn>
+          <GreetingSection>
+            <Title>Welcome back!</Title>
+            <Subtitle>Enter your Credentials to access your account</Subtitle>
+            <AuthForm {...formProps} />
+          </GreetingSection>
+        </LoginColumn>
+      </LoginContainer>
+    </MainContainer>
   );
 };
-// Reuse necessary styled components from previous code.
 
 export default Landing;
+
+const MainContainer = styled.main`
+  background-color: #fff;
+  padding-left: 80px;
+  @media (max-width: 991px) {
+    padding-left: 20px;
+  }
+`;
+
+const LoginContainer = styled.section`
+  gap: 20px;
+  display: flex;
+  @media (max-width: 991px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0px;
+  }
+`;
+
+const LoginColumn = styled.section`
+  display: flex;
+  flex-direction: column;
+  width: 38%;
+  @media (max-width: 991px) {
+    width: 100%;
+  }
+`;
+
+const GreetingSection = styled.section`
+  margin: auto 0;
+  padding: 2px 0;
+  @media (max-width: 991px) {
+    margin-top: 40px;
+  }
+`;
+
+const Title = styled.h2`
+  font: 32px Poppins, sans-serif;
+  color: #000;
+`;
+
+const Subtitle = styled.p`
+  margin-top: 11px;
+  font: 16px Poppins, sans-serif;
+  color: #000;
+`;
