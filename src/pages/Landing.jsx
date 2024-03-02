@@ -38,28 +38,9 @@ const Landing = () => {
   const canvasRef = useRef();
 
   const handleLoginSuccess = () => {
-    setIsLoggedIn(true); // 更新登录状态
-    navigate('/', { replace: true }); // 重定向到主页
+    setIsLoggedIn(true);
+    navigate('/', { replace: true });
   };
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/', { replace: true }); // 如果已登录，重定向
-    }
-  }, [isLoggedIn, navigate]);
-
-  // Effect to load Face API models when Landing mounts
-  useEffect(() => {
-    const loadModels = async () => {
-      Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-      ]).then(setModelsLoaded(true));
-    };
-    loadModels();
-  }, []);
 
   // Start video stream from webcam
   const startVideo = () => {
@@ -130,7 +111,7 @@ const Landing = () => {
     setCaptureVideo(false);
   };
 
-  const shootPhoto = () => {
+  const shootPhoto = async () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -142,40 +123,116 @@ const Landing = () => {
       // Draw the current video frame onto the canvas
       context.drawImage(video, 0, 0, videoWidth, videoHeight);
 
-      const imageDataUrl = canvas.toDataURL('image/jpeg');
+      const detections = await faceapi
+        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceExpressions();
 
-      uploadPhoto(imageDataUrl);
+      if (detections.length > 0) {
+        console.log(detections[0].expressions);
+        const expressionsData = detections[0].expressions;
+
+        const max = Math.max(...Object.values(expressionsData));
+        console.log(max);
+        const dominantExpression = Object.keys(expressionsData).find(
+          (key) => expressionsData[key] === max
+        );
+
+        uploadPhotoWithExpression(
+          canvas.toDataURL('image/jpeg'),
+          dominantExpression
+        );
+      } else {
+        console.log('No faces detected.');
+      }
     }
   };
 
-  const uploadPhoto = async (imageDataUrl) => {
+  const uploadPhotoWithExpression = async (imageDataUrl, dominantExpression) => {
     // Create a blob from the data URL
     const response = await fetch(imageDataUrl);
     const blob = await response.blob();
 
     const formData = new FormData();
     formData.append('file', blob, 'photo.jpg');
+    formData.append('expressions', JSON.stringify(dominantExpression));
 
     try {
-      const result = await fetch('YOUR_BACKEND_URL/photos', {
+      const result = await fetch('YOUR_BACKEND_URL/photos_and_expressions', {
         method: 'POST',
         body: formData,
       });
 
-      const response = await result.json(); // or result.text() if the response is not JSON
+      const response = await result.json(); // Assuming the backend returns JSON
 
-      if (response.authenticated === 1) {
-        // Assume the response body has an authenticated field
-        console.log('Authentication success, navigating to Home');
-        handleLoginSuccess()
+      if (response.success) {
+        console.log('Photo and expressions uploaded successfully');
       } else {
-        console.error('Authentication failed');
-        //
+        console.error('Error:', response.message);
       }
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      console.error('Error uploading photo and expressions:', error);
     }
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/', { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Effect to load Face API models when Landing mounts
+  useEffect(() => {
+    const loadModels = async () => {
+      Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+      ]).then(setModelsLoaded(true));
+    };
+    loadModels();
+  }, []);
+
+  useEffect(() => {
+    let intervalId;
+
+    const startFaceDetection = () => {
+      const videoEl = videoRef.current;
+      if (!videoEl) return;
+
+      const displaySize = { width: videoWidth, height: videoHeight };
+      faceapi.matchDimensions(canvasRef.current, displaySize);
+
+      intervalId = setInterval(async () => {
+        const detections = await faceapi
+          .detectAllFaces(videoEl, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceExpressions();
+
+        const resizedDetections = faceapi.resizeResults(
+          detections,
+          displaySize
+        );
+        canvasRef.current
+          .getContext('2d')
+          .clearRect(0, 0, videoWidth, videoHeight);
+        faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetections);
+      }, 100);
+    };
+
+    if (captureVideo && modelsLoaded) {
+      startFaceDetection();
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [captureVideo, modelsLoaded, videoWidth, videoHeight]); //
 
   return (
     <LandingContainer>
@@ -189,7 +246,7 @@ const Landing = () => {
         <CamControlSection>
           <CamTitle>Camera Control</CamTitle>
           {captureVideo && modelsLoaded ? (
-            <CameraControlButton onClick={closeWebcam} toggle={false}>
+            <CameraControlButton onClick={closeWebcam}>
               Turn off Camera
             </CameraControlButton>
           ) : (
@@ -202,18 +259,34 @@ const Landing = () => {
       {/* Right Column */}
       <CameraColumn>
         <CameraSection>
-          {captureVideo && modelsLoaded && (
-            <Overlay show={captureVideo && modelsLoaded}>
-              <video
-                ref={videoRef}
-                height={videoHeight}
-                width={videoWidth}
-                onPlay={handleVideoOnPlay}
-                style={{ borderRadius: '10px' }}
-              />
-              <canvas ref={canvasRef} style={{ position: 'absolute' }} />
-            </Overlay>
-          )}
+          <Overlay
+            style={{
+              visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
+            }}
+          >
+            <video
+              ref={videoRef}
+              height={videoHeight}
+              width={videoWidth}
+              onPlay={handleVideoOnPlay}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                borderRadius: '10px',
+                visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
+              }}
+            />
+            <canvas
+              ref={canvasRef}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
+              }}
+            />
+          </Overlay>
         </CameraSection>
         <PhotoShootSection>
           <ShootControlButton onClick={shootPhoto}>
