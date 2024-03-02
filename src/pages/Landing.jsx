@@ -25,50 +25,42 @@ const Landing = () => {
   };
 
   return (
-    <>
-      <LoginContainer>
-        <LoginColumn>
-          <GreetingSection>
-            <Title>Welcome back!</Title>
-            <Subtitle>Enter your Credentials to access your account</Subtitle>
-            <AuthForm {...formProps} />
-          </GreetingSection>
-        </LoginColumn>
-      </LoginContainer>
-      <>
-        <CameraColumn>
+    <LandingContainer>
+      {/* Left Column */}
+      <AuthColumn>
+        <GreetingSection>
+          <Title>Welcome back!</Title>
+          <Subtitle>Enter your Credentials to access your account</Subtitle>
+          <AuthForm {...formProps} />
+        </GreetingSection>
+        <CamControlSection>
+          <CamTitle>Camera Control</CamTitle>
+          <CameraControlButton onClick={toggleCamera}>
+            {isCameraOn ? 'Turn Camera Off' : 'Turn Camera On'}
+          </CameraControlButton>
+        </CamControlSection>
+      </AuthColumn>
+      {/* Right Column */}
+      <CameraColumn>
           <CameraSection>
-            <CameraTitle>Camera Control</CameraTitle>
-            <CameraControlButton onClick={toggleCamera}>
-              {isCameraOn ? 'Turn Camera Off' : 'Turn Camera On'}
-            </CameraControlButton>
+            This is where the Camera is
           </CameraSection>
-        </CameraColumn>
-      </>
-    </>
+      </CameraColumn>
+    </LandingContainer>
   );
 };
 
 export default Landing;
 
-
-const LoginContainer = styled.section`
-  gap: 20px;
+const LandingContainer = styled.section`
   display: flex;
-  @media (max-width: 991px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0px;
-  }
 `;
 
-const LoginColumn = styled.section`
+const AuthColumn = styled.section`
+  flex: 1;
+  gap: 20px;
   display: flex;
   flex-direction: column;
-  width: 38%;
-  @media (max-width: 991px) {
-    width: 100%;
-  }
 `;
 
 const GreetingSection = styled.section`
@@ -90,7 +82,7 @@ const Subtitle = styled.p`
   color: #000;
 `;
 
-const CameraColumn = styled.section`
+const CamControlSection = styled.section`
   display: flex;
   flex-direction: column;
   width: 62%; // 由于LoginColumn占用了38%，此处占其余的部分
@@ -102,7 +94,7 @@ const CameraSection = styled.section`
   text-align: center;
 `;
 
-const CameraTitle = styled.h2`
+const CamTitle = styled.h2`
   font-size: 24px;
   color: #000;
 `;
@@ -119,4 +111,10 @@ const CameraControlButton = styled.button`
   &:hover {
     background-color: #0056b3;
   }
+`;
+
+const CameraColumn = styled.section`
+  flex: 1;
+  gap: 20px;
+  display: flex;
 `;
