@@ -42,25 +42,6 @@ const Landing = () => {
     navigate('/', { replace: true }); // 重定向到主页
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/', { replace: true }); // 如果已登录，重定向
-    }
-  }, [isLoggedIn, navigate]);
-
-  // Effect to load Face API models when Landing mounts
-  useEffect(() => {
-    const loadModels = async () => {
-      Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-      ]).then(setModelsLoaded(true));
-    };
-    loadModels();
-  }, []);
-
   // Start video stream from webcam
   const startVideo = () => {
     setCaptureVideo(true);
@@ -167,7 +148,7 @@ const Landing = () => {
       if (response.authenticated === 1) {
         // Assume the response body has an authenticated field
         console.log('Authentication success, navigating to Home');
-        handleLoginSuccess()
+        handleLoginSuccess();
       } else {
         console.error('Authentication failed');
         //
@@ -176,6 +157,65 @@ const Landing = () => {
       console.error('Error uploading photo:', error);
     }
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/', { replace: true }); // 如果已登录，重定向
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Effect to load Face API models when Landing mounts
+  useEffect(() => {
+    const loadModels = async () => {
+      Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+      ]).then(setModelsLoaded(true));
+    };
+    loadModels();
+  }, []);
+
+  useEffect(() => {
+    let intervalId;
+
+    const startFaceDetection = () => {
+      const videoEl = videoRef.current;
+      if (!videoEl) return;
+
+      const displaySize = { width: videoWidth, height: videoHeight };
+      faceapi.matchDimensions(canvasRef.current, displaySize);
+
+      intervalId = setInterval(async () => {
+        const detections = await faceapi
+          .detectAllFaces(videoEl, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceExpressions();
+
+        const resizedDetections = faceapi.resizeResults(
+          detections,
+          displaySize
+        );
+        canvasRef.current
+          .getContext('2d')
+          .clearRect(0, 0, videoWidth, videoHeight);
+        faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetections);
+      }, 100);
+    };
+
+    if (captureVideo && modelsLoaded) {
+      startFaceDetection();
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [captureVideo, modelsLoaded, videoWidth, videoHeight]); //
 
   return (
     <LandingContainer>
@@ -202,18 +242,29 @@ const Landing = () => {
       {/* Right Column */}
       <CameraColumn>
         <CameraSection>
-          {captureVideo && modelsLoaded && (
-            <Overlay show={captureVideo && modelsLoaded}>
-              <video
-                ref={videoRef}
-                height={videoHeight}
-                width={videoWidth}
-                onPlay={handleVideoOnPlay}
-                style={{ borderRadius: '10px' }}
-              />
-              <canvas ref={canvasRef} style={{ position: 'absolute' }} />
-            </Overlay>
-          )}
+          <Overlay
+            style={{
+              visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
+            }}
+          >
+            <video
+              ref={videoRef}
+              height={videoHeight}
+              width={videoWidth}
+              onPlay={handleVideoOnPlay}
+              style={{
+                borderRadius: '10px',
+                visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
+              }}
+            />
+            <canvas
+              ref={canvasRef}
+              style={{
+                position: 'absolute',
+                visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
+              }}
+            />
+          </Overlay>
         </CameraSection>
         <PhotoShootSection>
           <ShootControlButton onClick={shootPhoto}>
