@@ -112,6 +112,54 @@ const Landing = () => {
     setCaptureVideo(false);
   };
 
+  const shootPhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+
+      // 调整 canvas 尺寸以匹配视频流尺寸
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
+
+      // 把当前 video 帧绘制到 canvas 上
+      context.drawImage(video, 0, 0, videoWidth, videoHeight);
+
+      // 可以将 canvas 上的图像转换为 data URL，也可以转换为 Blob 等其他格式
+      const imageDataUrl = canvas.toDataURL('image/jpeg');
+
+      // TODO
+      uploadPhoto(imageDataUrl);
+    }
+  };
+
+  const uploadPhoto = async (imageDataUrl) => {
+    // 将 imageDataUrl 转换为 blob 可以更有效地上传
+    const response = await fetch(imageDataUrl);
+    const blob = await response.blob();
+
+    const formData = new FormData();
+    formData.append('file', blob, 'photo.jpg');
+
+    try {
+      const result = await fetch('YOUR_BACKEND_URL/photos', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (result.ok) {
+        console.log('Photo uploaded successfully');
+        // 处理上传成功的逻辑，比如显示成功消息或更新UI
+      } else {
+        console.error('Upload failed', result.statusText);
+        // 处理上传失败的逻辑
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      // 处理网络错误的逻辑
+    }
+  };
+
   return (
     <LandingContainer>
       {/* Left Column */}
@@ -124,12 +172,12 @@ const Landing = () => {
         <CamControlSection>
           <CamTitle>Camera Control</CamTitle>
           {captureVideo && modelsLoaded ? (
-            <CameraControlButton onClick={closeWebcam}>
-              Turn on Camera
+            <CameraControlButton onClick={closeWebcam} toggle={false}>
+              Turn off Camera
             </CameraControlButton>
           ) : (
             <CameraControlButton onClick={startVideo}>
-              Turn off Camera
+              Turn on Camera
             </CameraControlButton>
           )}
         </CamControlSection>
@@ -150,6 +198,11 @@ const Landing = () => {
             </Overlay>
           )}
         </CameraSection>
+        <PhotoShootSection>
+          <ShootControlButton onClick={shootPhoto}>
+            Take a photo
+          </ShootControlButton>
+        </PhotoShootSection>
       </CameraColumn>
     </LandingContainer>
   );
@@ -222,6 +275,8 @@ const CameraControlButton = styled.button`
 // Camera Column Section
 const CameraColumn = styled.section`
   flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 `;
 
@@ -231,3 +286,19 @@ const CameraColumn = styled.section`
 //   height: 300px;
 //   // 为了确保圆形效果, width 和 height 应相等
 // `;
+
+const PhotoShootSection = styled.div``;
+
+const ShootControlButton = styled.button`
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
