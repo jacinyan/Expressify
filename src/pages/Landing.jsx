@@ -1,8 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+
+import {
+  loadFaceLandmarkModel,
+  loadFaceRecognitionModel,
+  loadSsdMobilenetv1Model,
+} from 'face-api.js';
 
 import AuthForm from '@components/AuthForm';
 import CameraOverlay from '@components/Overlay';
+import CameraVideo from '@components/Video';
+
+const MODEL_URL = '/models';
+
+const FACE_MATCHER_THRESHOLD = 0.6;
+
+const loadModels = async () => {
+  await loadSsdMobilenetv1Model(MODEL_URL);
+  await loadFaceLandmarkModel(MODEL_URL);
+  await loadFaceRecognitionModel(MODEL_URL);
+};
 
 const Landing = () => {
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -26,6 +43,10 @@ const Landing = () => {
     // other props
   };
 
+  useEffect(() => {
+    loadModels();
+  }, []);
+
   return (
     <LandingContainer>
       {/* Left Column */}
@@ -47,8 +68,9 @@ const Landing = () => {
         <CameraSection>
           {isCameraOn && (
             <CameraOverlay show={isCameraOn}>
-              {/* 你可以在这里初始化 face-api 或其他对 canvas 的操作 */}
-              <CameraCircle id="cameraCircle"></CameraCircle>
+              {/* <CameraCircle id="cameraCircle"> */}
+              <CameraVideo />
+              {/* </CameraCircle> */}
             </CameraOverlay>
           )}
         </CameraSection>
