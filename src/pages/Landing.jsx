@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import AuthForm from '@components/AuthForm';
 
 const Landing = () => {
+  const [isCameraOn, setIsCameraOn] = useState(false);
+
+  const toggleCamera = () => {
+    setIsCameraOn(!isCameraOn);
+    // e.g. call Web APIs to switch on/off cameras
+  };
+
   const formProps = {
     type: 'login', // or 'signup'
     title: 'Welcome Back!',
@@ -19,6 +26,7 @@ const Landing = () => {
 
   return (
     <MainContainer>
+      {/*  */}
       <LoginContainer>
         <LoginColumn>
           <GreetingSection>
@@ -28,6 +36,16 @@ const Landing = () => {
           </GreetingSection>
         </LoginColumn>
       </LoginContainer>
+      <>
+        <CameraColumn>
+          <CameraSection>
+            <CameraTitle>Camera Control</CameraTitle>
+            <CameraControlButton onClick={toggleCamera}>
+              {isCameraOn ? 'Turn Camera Off' : 'Turn Camera On'}
+            </CameraControlButton>
+          </CameraSection>
+        </CameraColumn>
+      </>
     </MainContainer>
   );
 };
@@ -37,9 +55,12 @@ export default Landing;
 const MainContainer = styled.main`
   background-color: #fff;
   padding-left: 80px;
+  height: 100vh;
+  overflow: auto;
   @media (max-width: 991px) {
     padding-left: 20px;
   }
+
 `;
 
 const LoginContainer = styled.section`
@@ -78,4 +99,35 @@ const Subtitle = styled.p`
   margin-top: 11px;
   font: 16px Poppins, sans-serif;
   color: #000;
+`;
+
+const CameraColumn = styled.section`
+  display: flex;
+  flex-direction: column;
+  width: 62%; // 由于LoginColumn占用了38%，此处占其余的部分
+  align-items: center; // 水平居中
+  justify-content: center; // 垂直居中
+`;
+
+const CameraSection = styled.section`
+  text-align: center;
+`;
+
+const CameraTitle = styled.h2`
+  font-size: 24px;
+  color: #000;
+`;
+
+const CameraControlButton = styled.button`
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
