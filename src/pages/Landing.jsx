@@ -48,7 +48,7 @@ const Landing = () => {
   const startVideo = () => {
     setCaptureVideo(true);
     navigator.mediaDevices
-      .getUserMedia({ video: { width: 300 } })
+      .getUserMedia({ video: true })
       .then((stream) => {
         let video = videoRef.current;
         video.srcObject = stream;
@@ -137,8 +137,8 @@ const Landing = () => {
       {/* Right Column */}
       <CameraColumn>
         <CameraSection>
-          {captureVideo && modelsLoaded  && (
-            <Overlay show={captureVideo && modelsLoaded }>
+          {captureVideo && modelsLoaded && (
+            <Overlay show={captureVideo && modelsLoaded}>
               <video
                 ref={videoRef}
                 height={videoHeight}
@@ -191,8 +191,8 @@ const CamControlSection = styled.section`
   display: flex;
   flex-direction: column;
   width: 62%;
-  align-items: center; // 水平居中
-  justify-content: center; // 垂直居中
+  align-items: center;
+  justify-content: center;
 `;
 
 const CameraSection = styled.section`
@@ -225,9 +225,9 @@ const CameraColumn = styled.section`
   gap: 20px;
 `;
 
-const CameraCircle = styled.canvas`
-  border-radius: 50%;
-  width: 300px; // 根据需要调整尺寸
-  height: 300px;
-  // 为了确保圆形效果, width 和 height 应相等
-`;
+// const CameraCircle = styled.canvas`
+//   border-radius: 50%;
+//   width: 300px; // 根据需要调整尺寸
+//   height: 300px;
+//   // 为了确保圆形效果, width 和 height 应相等
+// `;
