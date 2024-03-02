@@ -11,13 +11,6 @@ const MODEL_URL = process.env.PUBLIC_URL + '/models';
 const FACE_MATCHER_THRESHOLD = 0.6;
 
 const Landing = () => {
-  const [isCameraOn, setIsCameraOn] = useState(false);
-
-  const toggleCamera = () => {
-    setIsCameraOn(!isCameraOn);
-    // e.g. call Web APIs to switch on/off cameras
-  };
-
   const formProps = {
     type: 'login', // or 'signup'
     title: 'Welcome Back!',
@@ -130,16 +123,22 @@ const Landing = () => {
         </GreetingSection>
         <CamControlSection>
           <CamTitle>Camera Control</CamTitle>
-          <CameraControlButton onClick={()=>{toggleCamera(); startVideo()}}>
-            {isCameraOn ? 'Turn Camera Off' : 'Turn Camera On'}
-          </CameraControlButton>
+          {captureVideo && modelsLoaded ? (
+            <CameraControlButton onClick={closeWebcam}>
+              Turn on Camera
+            </CameraControlButton>
+          ) : (
+            <CameraControlButton onClick={startVideo}>
+              Turn off Camera
+            </CameraControlButton>
+          )}
         </CamControlSection>
       </AuthColumn>
       {/* Right Column */}
       <CameraColumn>
         <CameraSection>
-          {isCameraOn && (
-            <Overlay show={isCameraOn}>
+          {captureVideo && modelsLoaded  && (
+            <Overlay show={captureVideo && modelsLoaded }>
               <video
                 ref={videoRef}
                 height={videoHeight}
@@ -191,7 +190,7 @@ const Subtitle = styled.p`
 const CamControlSection = styled.section`
   display: flex;
   flex-direction: column;
-  width: 62%; 
+  width: 62%;
   align-items: center; // 水平居中
   justify-content: center; // 垂直居中
 `;

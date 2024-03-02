@@ -1,9 +1,9 @@
 import React from 'react'
 import { styled } from 'styled-components';
 
-const Overlay = () => {
+const Overlay = ({children}) => {
   return (
-    <OverlayStyles />
+    <OverlayStyles >{children}</OverlayStyles>
   )
 }
 
