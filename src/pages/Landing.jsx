@@ -1,16 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import * as faceapi from 'face-api.js';
+
+import { useAuth } from '@components/AuthContext';
 
 import AuthForm from '@components/AuthForm';
 import Overlay from '@components/Overlay';
 
 const MODEL_URL = process.env.PUBLIC_URL + '/models';
 
-const FACE_MATCHER_THRESHOLD = 0.6;
-
 const Landing = () => {
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
   const formProps = {
     type: 'login', // or 'signup'
     title: 'Welcome Back!',
@@ -33,6 +37,18 @@ const Landing = () => {
   const videoWidth = 640;
   const canvasRef = useRef();
 
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true); // 更新登录状态
+    navigate('/', { replace: true }); // 重定向到主页
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/', { replace: true }); // 如果已登录，重定向
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Effect to load Face API models when Landing mounts
   useEffect(() => {
     const loadModels = async () => {
       Promise.all([
@@ -45,6 +61,7 @@ const Landing = () => {
     loadModels();
   }, []);
 
+  // Start video stream from webcam
   const startVideo = () => {
     setCaptureVideo(true);
     navigator.mediaDevices
@@ -53,7 +70,7 @@ const Landing = () => {
         let video = videoRef.current;
         video.srcObject = stream;
         video.play().then(() => {
-          // Make sure to initialize canvas and face-api after video starts playing
+          // Initialise canvas and face-api when video starts
           initializeCanvasAndFaceApi();
         });
       })
@@ -62,6 +79,7 @@ const Landing = () => {
       });
   };
 
+  // Initialises canvas and Face API settings
   const initializeCanvasAndFaceApi = () => {
     if (canvasRef.current && videoRef.current) {
       const displaySize = { width: videoWidth, height: videoHeight };
@@ -73,6 +91,7 @@ const Landing = () => {
     }
   };
 
+  // Periodically detects faces as video plays
   const handleVideoOnPlay = () => {
     const displaySize = { width: videoWidth, height: videoHeight };
 
@@ -143,10 +162,15 @@ const Landing = () => {
         body: formData,
       });
 
-      if (result.ok) {
-        console.log('Photo uploaded successfully');
+      const response = await result.json(); // or result.text() if the response is not JSON
+
+      if (response.authenticated === 1) {
+        // Assume the response body has an authenticated field
+        console.log('Authentication success, navigating to Home');
+        handleLoginSuccess()
       } else {
-        console.error('Upload failed', result.statusText);
+        console.error('Authentication failed');
+        //
       }
     } catch (error) {
       console.error('Error uploading photo:', error);
@@ -275,9 +299,9 @@ const CameraColumn = styled.section`
 
 // const CameraCircle = styled.canvas`
 //   border-radius: 50%;
-//   width: 300px; 
+//   width: 300px;
 //   height: 300px;
-//  
+//
 // `;
 
 const PhotoShootSection = styled.div``;
