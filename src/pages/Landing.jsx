@@ -74,6 +74,7 @@ const Landing = () => {
 
   // Periodically detects faces as video plays
   const handleVideoOnPlay = () => {
+    console.log('Video onPlay event triggered');
     const displaySize = { width: videoWidth, height: videoHeight };
 
     if (canvasRef.current && videoRef.current) {
@@ -89,6 +90,8 @@ const Landing = () => {
           )
           .withFaceLandmarks()
           .withFaceExpressions();
+
+        console.log(detections);
 
         const resizedDetections = faceapi.resizeResults(
           detections,
@@ -229,7 +232,7 @@ const Landing = () => {
         <CamControlSection>
           <CamTitle>Camera Control</CamTitle>
           {captureVideo && modelsLoaded ? (
-            <CameraControlButton onClick={closeWebcam} toggle={false}>
+            <CameraControlButton onClick={closeWebcam}>
               Turn off Camera
             </CameraControlButton>
           ) : (
@@ -253,6 +256,9 @@ const Landing = () => {
               width={videoWidth}
               onPlay={handleVideoOnPlay}
               style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 borderRadius: '10px',
                 visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
               }}
@@ -261,6 +267,8 @@ const Landing = () => {
               ref={canvasRef}
               style={{
                 position: 'absolute',
+                top: 0,
+                left: 0,
                 visibility: captureVideo && modelsLoaded ? 'visible' : 'hidden',
               }}
             />
