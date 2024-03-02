@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
+
 import AuthForm from '@components/AuthForm';
+import CameraOverlay from '@components/Overlay';
 
 const Landing = () => {
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -42,9 +44,14 @@ const Landing = () => {
       </AuthColumn>
       {/* Right Column */}
       <CameraColumn>
-          <CameraSection>
-            This is where the Camera is
-          </CameraSection>
+        <CameraSection>
+          {isCameraOn && (
+            <CameraOverlay show={isCameraOn}>
+              {/* 你可以在这里初始化 face-api 或其他对 canvas 的操作 */}
+              <CameraCircle id="cameraCircle"></CameraCircle>
+            </CameraOverlay>
+          )}
+        </CameraSection>
       </CameraColumn>
     </LandingContainer>
   );
@@ -113,8 +120,16 @@ const CameraControlButton = styled.button`
   }
 `;
 
+// Camera Column Section
 const CameraColumn = styled.section`
   flex: 1;
   gap: 20px;
   display: flex;
+`;
+
+const CameraCircle = styled.canvas`
+  border-radius: 50%;
+  width: 300px; // 根据需要调整尺寸
+  height: 300px;
+  // 为了确保圆形效果, width 和 height 应相等
 `;
