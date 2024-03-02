@@ -1,25 +1,15 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import {
-  loadFaceLandmarkModel,
-  loadFaceRecognitionModel,
-  loadSsdMobilenetv1Model,
-} from 'face-api.js';
+import * as faceapi from 'face-api.js';
 
 import AuthForm from '@components/AuthForm';
 import CameraOverlay from '@components/Overlay';
 import CameraVideo from '@components/Video';
 
-const MODEL_URL = '/models';
+const MODEL_URL = process.env.PUBLIC_URL + '/models';
 
 const FACE_MATCHER_THRESHOLD = 0.6;
-
-const loadModels = async () => {
-  await loadSsdMobilenetv1Model(MODEL_URL);
-  await loadFaceLandmarkModel(MODEL_URL);
-  await loadFaceRecognitionModel(MODEL_URL);
-};
 
 const Landing = () => {
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -43,7 +33,20 @@ const Landing = () => {
     // other props
   };
 
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [captureVideo, setCaptureVideo] = useState(false);
+
   useEffect(() => {
+    const loadModels = async () => {
+
+
+      Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+      ]).then(setModelsLoaded(true));
+    };
     loadModels();
   }, []);
 
