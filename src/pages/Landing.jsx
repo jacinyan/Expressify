@@ -52,26 +52,36 @@ const Landing = () => {
       .then((stream) => {
         let video = videoRef.current;
         video.srcObject = stream;
-        video.play();
+        video.play().then(() => {
+          // Make sure to initialize canvas and face-api after video starts playing
+          initializeCanvasAndFaceApi();
+        });
       })
       .catch((err) => {
         console.error('error:', err);
       });
   };
 
+  const initializeCanvasAndFaceApi = () => {
+    if (canvasRef.current && videoRef.current) {
+      const displaySize = { width: videoWidth, height: videoHeight };
+
+      // Configure face-api related settings, such as size matching, etc.
+      faceapi.matchDimensions(canvasRef.current, displaySize);
+
+      // Continue with other settings or calls here
+    }
+  };
+
   const handleVideoOnPlay = () => {
+    const displaySize = { width: videoWidth, height: videoHeight };
+
+    if (canvasRef.current && videoRef.current) {
+      faceapi.matchDimensions(canvasRef.current, displaySize);
+    }
+
     setInterval(async () => {
-      if (canvasRef && canvasRef.current) {
-        canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(
-          videoRef.current
-        );
-        const displaySize = {
-          width: videoWidth,
-          height: videoHeight,
-        };
-
-        faceapi.matchDimensions(canvasRef.current, displaySize);
-
+      if (videoRef.current && canvasRef.current) {
         const detections = await faceapi
           .detectAllFaces(
             videoRef.current,
@@ -85,23 +95,12 @@ const Landing = () => {
           displaySize
         );
 
-        canvasRef &&
-          canvasRef.current &&
-          canvasRef.current
-            .getContext('2d')
-            .clearRect(0, 0, videoWidth, videoHeight);
-        canvasRef &&
-          canvasRef.current &&
-          faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
-        canvasRef &&
-          canvasRef.current &&
-          faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-        canvasRef &&
-          canvasRef.current &&
-          faceapi.draw.drawFaceExpressions(
-            canvasRef.current,
-            resizedDetections
-          );
+        canvasRef.current
+          .getContext('2d')
+          .clearRect(0, 0, videoWidth, videoHeight);
+        faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetections);
       }
     }, 100);
   };
@@ -118,23 +117,20 @@ const Landing = () => {
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
 
-      // 调整 canvas 尺寸以匹配视频流尺寸
       canvas.width = videoWidth;
       canvas.height = videoHeight;
 
-      // 把当前 video 帧绘制到 canvas 上
+      // Draw the current video frame onto the canvas
       context.drawImage(video, 0, 0, videoWidth, videoHeight);
 
-      // 可以将 canvas 上的图像转换为 data URL，也可以转换为 Blob 等其他格式
       const imageDataUrl = canvas.toDataURL('image/jpeg');
 
-      // TODO
       uploadPhoto(imageDataUrl);
     }
   };
 
   const uploadPhoto = async (imageDataUrl) => {
-    // 将 imageDataUrl 转换为 blob 可以更有效地上传
+    // Create a blob from the data URL
     const response = await fetch(imageDataUrl);
     const blob = await response.blob();
 
@@ -149,14 +145,11 @@ const Landing = () => {
 
       if (result.ok) {
         console.log('Photo uploaded successfully');
-        // 处理上传成功的逻辑，比如显示成功消息或更新UI
       } else {
         console.error('Upload failed', result.statusText);
-        // 处理上传失败的逻辑
       }
     } catch (error) {
       console.error('Error uploading photo:', error);
-      // 处理网络错误的逻辑
     }
   };
 
@@ -282,9 +275,9 @@ const CameraColumn = styled.section`
 
 // const CameraCircle = styled.canvas`
 //   border-radius: 50%;
-//   width: 300px; // 根据需要调整尺寸
+//   width: 300px; 
 //   height: 300px;
-//   // 为了确保圆形效果, width 和 height 应相等
+//  
 // `;
 
 const PhotoShootSection = styled.div``;

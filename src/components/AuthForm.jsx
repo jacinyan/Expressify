@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const AuthForm = ({
-  type, // 'login' 或 'signup'
+  type, // 'login' or 'signup'
   title,
   fields,
   agreeToTermsText,
