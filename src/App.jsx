@@ -90,14 +90,7 @@ p {
   outline: 2px solid #1a87ec;
 }
 
-body {
-  min-height: 100vh;
-  padding: 0;
-  margin: 0;
-  font-family: 'Rubik', sans-serif;
-  color: #303234;
-  background-color: #fffafa;
-}
+
 
 a {
   display: block;
@@ -137,32 +130,7 @@ label {
   padding: 0;
 }
 
-input,
-textarea {
-  margin: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-  color: #303234;
-}
 
-input[type='date']::-webkit-inner-spin-button,
-input[type='date']::-webkit-calendar-picker-indicator,
-input[type='datetime-local']::-webkit-inner-spin-button,
-input[type='datetime-local']::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  -webkit-appearance: none;
-}
-
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
-}
-
-input[type='number'] {
-  -moz-appearance: textfield;
-}
 
 `;
 

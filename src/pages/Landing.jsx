@@ -25,8 +25,7 @@ const Landing = () => {
   };
 
   return (
-    <MainContainer>
-      {/*  */}
+    <>
       <LoginContainer>
         <LoginColumn>
           <GreetingSection>
@@ -46,22 +45,12 @@ const Landing = () => {
           </CameraSection>
         </CameraColumn>
       </>
-    </MainContainer>
+    </>
   );
 };
 
 export default Landing;
 
-const MainContainer = styled.main`
-  background-color: #fff;
-  padding-left: 80px;
-  height: 100vh;
-  overflow: auto;
-  @media (max-width: 991px) {
-    padding-left: 20px;
-  }
-
-`;
 
 const LoginContainer = styled.section`
   gap: 20px;
