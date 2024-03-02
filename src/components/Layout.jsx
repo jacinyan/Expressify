@@ -11,7 +11,6 @@ const Layout = () => {
 
 export default Layout;
 
-// 使用 styled-components 创建一个 styled div
 const StyledLayout = styled.main`
   background-color: #fff;
   padding: 80px;

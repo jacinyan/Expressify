@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+
+import { useAuth } from '@components/AuthContext';
 
 const Image = styled.img``;
 
@@ -50,8 +53,7 @@ const ChatInput = ({ placeholder, onSubmit }) => {
     </DivChatInput>
   );
 };
-
-function Home() {
+const Home = () => {
   const handleSearch = () => {
     console.log('Search triggered');
   };
@@ -63,6 +65,15 @@ function Home() {
   const handleSendMessage = (message) => {
     console.log('Message sent:', message);
   };
+
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/landing');
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <Div>
@@ -103,9 +114,9 @@ function Home() {
       </Div2>
     </Div>
   );
-}
+};
 
-export default Home
+export default Home;
 
 const Div = styled.div`
   background-color: #f8f8ff;

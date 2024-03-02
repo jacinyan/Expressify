@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
 
+import { AuthProvider } from '@components/AuthContext'; // 导入 AuthProvider                                    
+
 import Layout from '@components/Layout';
 
 import Home from '@pages/Home';
@@ -134,19 +136,19 @@ label {
 
 `;
 
-function App() {
+const App = () => {
   return (
-    <>
-      <GlobalStyle />
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="landing" element={<Landing />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
-      </Routes>
-    </>
+    <AuthProvider>
+        <GlobalStyle />
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="landing" element={<Landing />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
   );
-}
+};
 
 export default App;
