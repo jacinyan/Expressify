@@ -38,8 +38,8 @@ const Landing = () => {
   const canvasRef = useRef();
 
   const handleLoginSuccess = () => {
-    setIsLoggedIn(true); // 更新登录状态
-    navigate('/', { replace: true }); // 重定向到主页
+    setIsLoggedIn(true);
+    navigate('/', { replace: true });
   };
 
   // Start video stream from webcam
@@ -74,7 +74,6 @@ const Landing = () => {
 
   // Periodically detects faces as video plays
   const handleVideoOnPlay = () => {
-    console.log('Video onPlay event triggered');
     const displaySize = { width: videoWidth, height: videoHeight };
 
     if (canvasRef.current && videoRef.current) {
@@ -90,8 +89,6 @@ const Landing = () => {
           )
           .withFaceLandmarks()
           .withFaceExpressions();
-
-        console.log(detections);
 
         const resizedDetections = faceapi.resizeResults(
           detections,
@@ -114,7 +111,7 @@ const Landing = () => {
     setCaptureVideo(false);
   };
 
-  const shootPhoto = () => {
+  const shootPhoto = async () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -126,44 +123,61 @@ const Landing = () => {
       // Draw the current video frame onto the canvas
       context.drawImage(video, 0, 0, videoWidth, videoHeight);
 
-      const imageDataUrl = canvas.toDataURL('image/jpeg');
+      const detections = await faceapi
+        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceExpressions();
 
-      uploadPhoto(imageDataUrl);
+      if (detections.length > 0) {
+        console.log(detections[0].expressions);
+        const expressionsData = detections[0].expressions;
+
+        const max = Math.max(...Object.values(expressionsData));
+        console.log(max);
+        const dominantExpression = Object.keys(expressionsData).find(
+          (key) => expressionsData[key] === max
+        );
+
+        uploadPhotoWithExpression(
+          canvas.toDataURL('image/jpeg'),
+          dominantExpression
+        );
+      } else {
+        console.log('No faces detected.');
+      }
     }
   };
 
-  const uploadPhoto = async (imageDataUrl) => {
+  const uploadPhotoWithExpression = async (imageDataUrl, dominantExpression) => {
     // Create a blob from the data URL
     const response = await fetch(imageDataUrl);
     const blob = await response.blob();
 
     const formData = new FormData();
     formData.append('file', blob, 'photo.jpg');
+    formData.append('expressions', JSON.stringify(dominantExpression));
 
     try {
-      const result = await fetch('YOUR_BACKEND_URL/photos', {
+      const result = await fetch('YOUR_BACKEND_URL/photos_and_expressions', {
         method: 'POST',
         body: formData,
       });
 
-      const response = await result.json(); // or result.text() if the response is not JSON
+      const response = await result.json(); // Assuming the backend returns JSON
 
-      if (response.authenticated === 1) {
-        // Assume the response body has an authenticated field
-        console.log('Authentication success, navigating to Home');
-        handleLoginSuccess();
+      if (response.success) {
+        console.log('Photo and expressions uploaded successfully');
       } else {
-        console.error('Authentication failed');
-        //
+        console.error('Error:', response.message);
       }
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      console.error('Error uploading photo and expressions:', error);
     }
   };
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate('/', { replace: true }); // 如果已登录，重定向
+      navigate('/', { replace: true });
     }
   }, [isLoggedIn, navigate]);
 
