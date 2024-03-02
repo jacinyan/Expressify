@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
 
+import Layout from '@components/Layout';
+
 import Home from '@pages/Home';
 import Profile from '@pages/Profile';
 import Landing from '@pages/Landing';
@@ -169,9 +171,11 @@ function App() {
     <>
       <GlobalStyle />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="landing" element={<Landing />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
       </Routes>
     </>
   );
