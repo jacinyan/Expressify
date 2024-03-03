@@ -73,7 +73,6 @@ function Home() {
   ];
 
 
-
   return (
     <Div>
       <Layout style={{height:"100%"}}>
