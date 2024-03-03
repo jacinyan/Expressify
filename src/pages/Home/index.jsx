@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { useAuth } from '@components/AuthContext';
+import Landing from '@pages/Landing';
 
 const Image = styled.img``;
 
@@ -69,11 +70,15 @@ const Home = () => {
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate('/landing');
-    }
-  }, [isLoggedIn, navigate]);
+  if (!isLoggedIn) {  
+    return <Landing />;
+  }
+
+  // useEffect(() => {
+  //   if (!isLoggedIn) {
+  //     navigate('/landing');
+  //   }
+  // }, [isLoggedIn, navigate]);
 
   return (
     <Div>
