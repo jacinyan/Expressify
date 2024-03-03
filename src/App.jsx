@@ -4,10 +4,11 @@ import { createGlobalStyle } from 'styled-components';
 import { AuthProvider } from '@components/AuthContext';
 
 import Layout from '@components/Layout';
+import PrivateRoute from '@components/PrivateRoute';
 
 import Home from '@pages/Home';
 import Profile from '@pages/Profile';
-import Landing from '@pages/Landing';
+// import Landing from '@pages/Landing';
 
 const GlobalStyle = createGlobalStyle`                                                              :root {
   -webkit-box-sizing: border-box;
@@ -143,12 +144,18 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          {/* <Route path="landing" element={<Landing />} /> */}
-          {/* <Route path="profile" element={<Profile />} /> */}
-          {/* Catch all */}
+          <Route
+            path="profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>
+      ;
     </AuthProvider>
   );
 };
