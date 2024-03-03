@@ -13,7 +13,7 @@ export default Layout;
 
 const StyledLayout = styled.main`
   background-color: #fff;
-  padding: 80px;
+  // padding: 80px;
   min-height: 100vh;
   overflow: auto;
 `;
