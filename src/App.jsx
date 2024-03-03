@@ -8,7 +8,7 @@ import PrivateRoute from '@components/PrivateRoute';
 
 import Home from '@pages/Home';
 import Profile from '@pages/Profile';
-// import Landing from '@pages/Landing';
+import NotFound from '@components/NotFound';
 
 const GlobalStyle = createGlobalStyle`                                                              :root {
   -webkit-box-sizing: border-box;
@@ -152,7 +152,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
       ;
