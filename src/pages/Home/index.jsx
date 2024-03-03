@@ -2,12 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import {  Button, Layout, Menu, theme, Col, Row, Input } from 'antd';
 import axios from 'axios';
-import { json } from 'react-router-dom';
-const { Header, Content, Footer, Sider } = Layout;
-
-
-
-
+const { Header, Content, Sider } = Layout;
 
 function getItem(label, key, icon, children, type) {
   return {
@@ -18,12 +13,6 @@ function getItem(label, key, icon, children, type) {
     type,
   };
 }
-
-
-
-
-
-
 
 function Home() {
 
