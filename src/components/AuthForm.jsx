@@ -38,6 +38,10 @@ const AuthForm = ({
       <SocialButtonText>
         {bottomText} <span>{bottomActionText}</span>
       </SocialButtonText>
+      <AuthPrompt>
+        {type === 'login' ? 'Don’t have an account?' : 'Already have an account?'}{' '}
+        <span>{type === 'login' ? 'Sign up' : 'Log in'}</span>
+      </AuthPrompt>
     </Form>
   );
 };
@@ -101,6 +105,16 @@ const SocialLoginSection = styled.div`
 const SocialButtonText = styled.p`
   margin: 0;
   font-family: Poppins, sans-serif;
+`;
+
+const AuthPrompt = styled.p`
+  margin-top: 20px;
+  font-family: Poppins, sans-serif;
+  text-align: center;
+  span {
+    color: #3a5b22;
+    cursor: pointer;
+  }
 `;
 
 const AuthMethod = styled.div``
